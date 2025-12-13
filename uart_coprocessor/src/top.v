@@ -66,6 +66,21 @@ module top(input clk_ext, input [4:0] btn, output [7:0] led, inout [7:0] interco
             .tx_in       (uart_tx_out) 
         );
 
+    reg [5:0] rx_char_count = 0;
+    reg din_valid = 0;
+    always @ (posedge clk) begin
+        if (reset) begin
+            rx_char_count <= 0; 
+            din_valid     <= 0;
+        end else if (rx_char_count >= UART_FRAME_SIZE) begin
+            rx_char_count <= 0;
+            din_valid     <= 1;
+        end else if (uart_rx_received) begin
+            rx_char_count <= rx_char_count + 1;
+            din_valid     <= 0;
+        end
+    end
+
     // Coprocessor /////////////////////////////////////////////////
     coprocessor #(
         .WIDTH_DIN    (),
@@ -75,7 +90,7 @@ module top(input clk_ext, input [4:0] btn, output [7:0] led, inout [7:0] interco
         .rst (reset),
 
         .din         (uart_rx_out),
-        .din_valid   (uart_rx_received),
+        .din_valid   (din_valid),
         .dout        (uart_tx_out),
         .dout_valid  (uart_tx_controller_send), 
 
