@@ -20,7 +20,6 @@ module coprocessor #(
         send <= din_valid;
     end
 
-    assign dout = { din[7:0], "asdfghjkl"};
+    assign dout = din; //{ din[7:0], "asdfghjkl"};
     assign dout_valid = send;
-
 endmodule

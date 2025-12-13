@@ -68,7 +68,7 @@ module top(input clk_ext, input [4:0] btn, output [7:0] led, inout [7:0] interco
 
     // Coprocessor /////////////////////////////////////////////////
     coprocessor #(
-        .WIDTH_DIN    (UART_FRAME_SIZE*DBITS-1),
+        .WIDTH_DIN    (),
         .WIDTH_DOUT   (UART_FRAME_SIZE*DBITS-1)
     ) u_coprocessor (
         .clk (clk),
@@ -78,7 +78,7 @@ module top(input clk_ext, input [4:0] btn, output [7:0] led, inout [7:0] interco
         .din_valid   (uart_rx_received),
         .dout        (uart_tx_out),
         .dout_valid  (uart_tx_controller_send), 
-        
+
         .control     (interconnect[7:2])
     );
 
