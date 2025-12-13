@@ -5,7 +5,7 @@ all: ${PROJ}.bit
 tmp.v: 
 	cat src/*.v src/*/*.v > tmp.v
 
-%.json: tmp.v
+%.json: tmp.v src/*.v
 	yosys -p "synth_ecp5 -top top -json $@" $<
 
 %_out.config: %.json

@@ -39,7 +39,8 @@ module top(input clk_ext, input [4:0] btn, output [7:0] led, inout [7:0] interco
     wire tx    = interconnect[1];
     wire [UART_FRAME_SIZE*DBITS-1:0] uart_rx_out;
     wire [UART_FRAME_SIZE*DBITS-1:0] uart_tx_out; // = "asdfghjkl";
-    reg                              uart_tx_controller_send = 0;
+    wire                             uart_tx_controller_send; // = 0;
+    wire                             uart_rx_received;
     wire rx_full, rx_empty;
     // Complete UART Core
     uart_top 
@@ -56,6 +57,7 @@ module top(input clk_ext, input [4:0] btn, output [7:0] led, inout [7:0] interco
             .rx          (interconnect[0]),
             .tx          (tx),
             
+            .rx_char_received (uart_rx_received),
             .rx_full     (rx_full),
             .rx_empty    (rx_empty),
             .rx_out      (uart_rx_out),
@@ -73,9 +75,11 @@ module top(input clk_ext, input [4:0] btn, output [7:0] led, inout [7:0] interco
         .rst (reset),
 
         .din         (uart_rx_out),
-        .din_valid   (1'b0),
+        .din_valid   (uart_rx_received),
         .dout        (uart_tx_out),
-        .dout_valid  ( )
+        .dout_valid  (uart_tx_controller_send), 
+        
+        .control     (interconnect[7:2])
     );
 
     /// Control Logic ///////////////////////////////////////////////
@@ -84,7 +88,7 @@ module top(input clk_ext, input [4:0] btn, output [7:0] led, inout [7:0] interco
         ~btn[4] ? uart_rx_out[8*(1)-1:8*(0)] :
         ~btn[3] ? uart_rx_out[8*(2)-1:8*(1)] :
         ~btn[2] ? interconnect : 
-        uart_rx_out[8*(1)-1:8*(0)] 
+        {uart_rx_out[8*(1)-1:8*(0)]}
     );
 
 endmodule

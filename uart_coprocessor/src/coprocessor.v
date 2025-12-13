@@ -14,7 +14,13 @@ module coprocessor #(
     inout [5:0] control
 );
 
-    assign dout_valid = 1'b0;
+    // Forwarding the Send signals
+    reg send = 0;
+    always @ (posedge clk) begin
+        send <= din_valid;
+    end
+
     assign dout = { din[7:0], "asdfghjkl"};
+    assign dout_valid = send;
 
 endmodule
