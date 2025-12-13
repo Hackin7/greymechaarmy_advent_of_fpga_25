@@ -32,7 +32,7 @@ module top(input clk_ext, input [4:0] btn, output [7:0] led, inout [7:0] interco
     
     /// UART ////////////////////////////////////////////////
     parameter DBITS = 8;
-    parameter UART_FRAME_SIZE = 18;
+    parameter UART_FRAME_SIZE = 1;
 
     wire reset = ~btn[2];
     wire rx;
