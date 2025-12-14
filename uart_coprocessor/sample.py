@@ -28,7 +28,7 @@ for d in pins:
 class FpgaCoprocessor():
     
     def __init__(self):
-        self.NUM_CHAR = 1
+        self.FRAME_SIZE = 16
         self.uart = busio.UART(board.GP8, board.GP9, baudrate=460800, timeout=0.1)
         DATA_PINS_NO = [board.GP10, board.GP11, board.GP12, board.GP13, board.GP14, board.GP15]
         pins = []
@@ -39,44 +39,49 @@ class FpgaCoprocessor():
             pins.append(d)
         self.pins = pins
     
+    def reset(self):
+        fp.pins[5].value = 1 ; fp.pins[5].value = 0
+        
     def write_int(self, val):
         n = val
-        s = n.to_bytes(self.NUM_CHAR, byteorder="big")
+        s = n.to_bytes(self.FRAME_SIZE, byteorder="big")
         #print(s)
         self.uart.write(s)
     
     def read_int(self):
-        s = fp.uart.read()[-self.NUM_CHAR :]
+        s = fp.uart.read()[-self.FRAME_SIZE :]
         #print(len(s), s)
-        n = int.from_bytes(s.decode("ascii"), byteorder="big")
+        n = int.from_bytes(s, byteorder="big")
         return n
 
 ### Processing ##################################
 fp = FpgaCoprocessor()
+fp.reset()
+# Reset
+ 
+
 # Print dummy message
 print(fp.uart.read())
 
 fp.pins[0].value = 1 # Forward mode
 fp.pins[1].value = 0 # Forward mode
-# fp.uart.write("123456789012345678")
-# print(fp.uart.read()[-18:])
+# fp.uart.write("1234567890123456"); s = fp.uart.read(); print(len(s), s[-16:])
 
 fp.write_int(10)
 print(fp.read_int())
 
 ### Previous mode
-fp.pins[0].value = 0
-fp.pins[1].value = 1
+fp.pins[0].value = 0; fp.pins[1].value = 1
 fp.write_int(11)
 print(fp.read_int()) # Should be 10
 fp.write_int(11)
 print(fp.read_int()) # Should be 11
 
 ### Addition Mode
-fp.pins[0].value = 0
-fp.pins[1].value = 0
+fp.pins[0].value = 0; fp.pins[1].value = 0
 fp.write_int(11)
 print(fp.read_int()) # Should be 22
-fp.write_int(100)
-print(fp.read_int()) # Should be 111
+fp.write_int(1000)
+print(fp.read_int()) # Should be 1011
+
 

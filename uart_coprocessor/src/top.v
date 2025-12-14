@@ -34,7 +34,7 @@ module top(input clk_ext, input [4:0] btn, output [7:0] led, inout [7:0] interco
     parameter DBITS = 8;
     parameter UART_FRAME_SIZE = 16;
 
-    wire reset = ~btn[2];
+    wire reset = interconnect[7] | ~btn[2];
     wire rx;
     wire tx    = interconnect[1];
     wire [UART_FRAME_SIZE*DBITS-1:0] uart_rx_out;
