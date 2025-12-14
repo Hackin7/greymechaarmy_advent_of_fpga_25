@@ -61,7 +61,7 @@ def app(hw_state):
     
     text_area = menu_layout(hw_state, "Advent of Code\n2025", "Part 1b Ans:\n" + str(sol))
     time.sleep(5)
-    text_area = menu_layout(hw_state, "Advent of Code\n2025", "Reset Board" + str(sol))
+    text_area = menu_layout(hw_state, "Advent of Code\n2025", "Reset Board")
     while (1): pass
     
 if __name__ == "__main__":
