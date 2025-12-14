@@ -18,6 +18,10 @@ sim:
 	iverilog -gspecify -g2012 -s tb -o test.vvp src/coprocessor.v test/tb.v
 	vvp test.vvp
 
+sim_aoc: 
+	iverilog -gspecify -g2012 -s tb -o test.vvp src/coprocessor.v ../script/tb_aoc.v
+	vvp test.vvp
+
 gtkwave: 
 	gtkwave waveform.vcd &
 
