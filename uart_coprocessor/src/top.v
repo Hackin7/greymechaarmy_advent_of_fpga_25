@@ -32,7 +32,7 @@ module top(input clk_ext, input [4:0] btn, output [7:0] led, inout [7:0] interco
     
     /// UART ////////////////////////////////////////////////
     parameter DBITS = 8;
-    parameter UART_FRAME_SIZE = 8;
+    parameter UART_FRAME_SIZE = 16;
 
     wire reset = ~btn[2];
     wire rx;
@@ -66,7 +66,7 @@ module top(input clk_ext, input [4:0] btn, output [7:0] led, inout [7:0] interco
             .tx_in       (uart_tx_out) 
         );
 
-    reg [5:0] rx_char_count = 0;
+    reg [7:0] rx_char_count = 0;
     reg din_valid = 0;
     reg din_valid_dly = 0;
     reg [UART_FRAME_SIZE*DBITS-1:0] din_dly;
@@ -75,26 +75,29 @@ module top(input clk_ext, input [4:0] btn, output [7:0] led, inout [7:0] interco
             rx_char_count <= 0; 
             din_valid     <= 0;
             din_dly       <= 0;
-        end else if (rx_char_count >= UART_FRAME_SIZE) begin
-            rx_char_count <= 0;
-            din_valid     <= 1;
         end else if (uart_rx_received) begin
-            rx_char_count <= rx_char_count + 1;
-            din_valid     <= 0;
+            if (rx_char_count >= 15) begin
+                rx_char_count <= 0;
+                din_valid     <= 1; // Trigger, then pulse din_valid
+            end else begin
+                rx_char_count <= rx_char_count + 1;
+                din_valid     <= 0;
+            end
         end else if (rx_char_count == 0) begin
+            din_valid     <= 0;
             din_dly       <= uart_rx_out;
         end
     end
 
     // Coprocessor /////////////////////////////////////////////////
     coprocessor #(
-        .WIDTH_DIN    (),
+        .WIDTH_DIN    (UART_FRAME_SIZE*DBITS-1),
         .WIDTH_DOUT   (UART_FRAME_SIZE*DBITS-1)
     ) u_coprocessor (
         .clk (clk),
         .rst (reset),
 
-        .din         (uart_rx_out),
+        .din         (din_dly),
         .din_valid   (din_valid),
         .dout        (uart_tx_out),
         .dout_valid  (uart_tx_controller_send), 
