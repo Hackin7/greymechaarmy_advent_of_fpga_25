@@ -16,7 +16,15 @@ tmp.v:
 
 ${PROJ}.svf : ${PROJ}.bit
 
+sim: 
+	iverilog -s tb -o test.vvp src/coprocessor.v test/tb.v
+	vvp test.vvp
+
+gtkwave: 
+	gtkwave waveform.vcd &
+
+
 clean:
-	rm -f *.svf *.bit *.config *.json tmp.v
+	rm -f *.svf *.bit *.config *.json tmp.v *.vvp *.vcd
 
 .PHONY: all prog clean

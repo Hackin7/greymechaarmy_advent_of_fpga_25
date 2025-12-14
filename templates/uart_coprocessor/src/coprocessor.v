@@ -1,3 +1,4 @@
+
 module coprocessor #(
     parameter WIDTH_DIN  = 18*8,
     parameter WIDTH_DOUT = 18*8
