@@ -79,17 +79,17 @@ module coprocessor #(
             calc_position       <= 50;
             calc_final_position <= 50;
             calc_position_state <= 0;
-        end else if (din_valid_ext) begin
-            calc_position       <= (calc_position + din_dly[WIDTH_COMPUTE-1:0]); 
-            calc_position_state <= 1;
         end else if (calc_position_state == 1) begin // restoring lmao
-            if (calc_position < 0) begin
+            if (calc_position[31]) begin
                 calc_position <= calc_position + 100;
             end else if (calc_position >= 100) begin
                 calc_position <= calc_position - 100;
             end else begin
                 calc_position_state <= 2;
             end
+        end else if (din_valid_ext) begin
+            calc_position       <= (calc_position + din_dly[WIDTH_COMPUTE-1:0]); 
+            calc_position_state <= 1;
         end else begin
             calc_position_state <= 0;
         end
@@ -116,8 +116,8 @@ module coprocessor #(
     wire [WIDTH_DIN-1:0] out = (
         control[2:0] == 3'b000 ? din :
         control[2:0] == 3'b001 ? din_dly :
-        control[2:0] == 3'b010 ? { {96{calc_position[31]}}, calc_position} :
-        control[2:0] == 3'b011 ? { {96{calc_final_position[31]}}, calc_final_position} :
+        control[2:0] == 3'b010 ? { {96{calc_position[31]}}, calc_position[31:0]} :
+        //control[2:0] == 3'b011 ? { {96{calc_final_position[31]}}, calc_final_position[31:0]} :
                                 calc_count // This is the answer
     );
 

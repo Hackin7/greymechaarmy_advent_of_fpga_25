@@ -62,17 +62,11 @@ module tb;
         // ---------------------------
         @(posedge clk);
         #1;
-        din       = 144'd101;
+        din       = -144'd50;
         din_valid = 1;
         #`CYCLE_DELAY;
 
-        @(posedge clk);
-        #1;
-        din       = 144'd49;
-        din_valid = 1;
-        #`CYCLE_DELAY;
-
-        // Pipeline ///////////////////////////
+        // Pipeline ////////////////////////////////////////////
         @(posedge clk);
         #1;
         din       = 144'd101;
@@ -81,14 +75,34 @@ module tb;
         @(posedge clk);
         @(posedge clk);
          // give time to finish computing
+        //////////////////////////////////////////////////////
+
+
+        @(posedge clk);
+        #1;
+        din       = 144'd50;
+        din_valid = 1;
+        #`CYCLE_DELAY;
+
+        // Pipeline ////////////////////////////////////////////
+        @(posedge clk);
+        #1;
+        din       = 144'd101;
+        din_valid = 0;
+        @(posedge clk);
+        @(posedge clk);
+        @(posedge clk);
+         // give time to finish computing
+        //////////////////////////////////////////////////////
+        
 
         @(posedge clk); // Return 1
         #1;
-        din       = 144'h0003;
+        din       = 144'd50;
         din_valid = 1;
         #`CYCLE_DELAY;
 
-        // Pipeline ///////////////////////////
+        // Pipeline ////////////////////////////////////////////
         @(posedge clk);
         #1;
         din       = 144'd101;
@@ -97,13 +111,26 @@ module tb;
         @(posedge clk);
         @(posedge clk);
          // give time to finish computing
-
+        //////////////////////////////////////////////////////
+        
         @(posedge clk);
         #1;
-        din       = 144'h0004;
+        din       = -144'd50;
         din_valid = 1;
         #`CYCLE_DELAY;
 
+
+        // Pipeline ////////////////////////////////////////////
+        @(posedge clk);
+        #1;
+        din       = 144'd101;
+        din_valid = 0;
+        @(posedge clk);
+        @(posedge clk);
+        @(posedge clk);
+         // give time to finish computing
+        //////////////////////////////////////////////////////
+        
         // ---------------------------
         // Test 3: default -> dout = prev_din + din
         // ---------------------------
@@ -112,6 +139,18 @@ module tb;
         din       = 144'h0005;
         din_valid = 1;
         #`CYCLE_DELAY;
+
+        // Pipeline ////////////////////////////////////////////
+        @(posedge clk);
+        #1;
+        din       = 144'd101;
+        din_valid = 0;
+        @(posedge clk);
+        @(posedge clk);
+        @(posedge clk);
+         // give time to finish computing
+        //////////////////////////////////////////////////////
+        
 
         @(posedge clk);
         #1;
