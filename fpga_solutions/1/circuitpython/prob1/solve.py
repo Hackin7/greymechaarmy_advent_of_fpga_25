@@ -94,11 +94,11 @@ fp.set_mode(0, 0, 1) # Get Final Answer
 ##################################################################################
 PATH="/hackin7/aoc25/prob1/"
 
-def run(file="input_test1.txt", interleave=False):
+def run(file="input_sample.txt", interleave=False, debug=True):
     fp.reset()
     for i in range(3): # Fill up pipeline stages
         fp.write_int(0)
-        print("stage:", 0, fp.read_int())
+        if debug: print("stage:", 0, fp.read_int())
     
     # Read Text file
     count = 0
@@ -119,8 +119,7 @@ def run(file="input_test1.txt", interleave=False):
             if interleave:
                 fp.read_int() # print("stage:", value, fp.read_int(), position)
                 fp.write_int(0)
-            time.sleep(0.1)
-            print("stage:", value, fp.read_int(), position)
+            if debug: print("stage:", value, fp.read_int(), position)
         
     fp.write_int(0) # Clear pipeline stages
     fp.read_int()
