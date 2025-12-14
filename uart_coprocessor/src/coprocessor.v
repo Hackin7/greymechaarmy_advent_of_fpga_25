@@ -21,15 +21,17 @@ module coprocessor #(
         send <= din_valid;
     end
 
+    reg [WIDTH_DIN-1:0] prev_din_2;
     reg [WIDTH_DIN-1:0] prev_din;
     always @ (posedge clk) begin
         if (din_valid) begin
-            prev_din[WIDTH_DIN-1:0] <= din[WIDTH_DIN-1:0];
+            prev_din_2[WIDTH_DIN-1:0] <= prev_din[WIDTH_DIN-1:0];
+            prev_din  [WIDTH_DIN-1:0] <= din[WIDTH_DIN-1:0];
         end
     end
     wire [WIDTH_DIN-1:0] out = (
         control[0] ? din :
-        control[1] ? prev_din :
+        control[1] ? prev_din_2 :
                      (prev_din + din)
     );
 
