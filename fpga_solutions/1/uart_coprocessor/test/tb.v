@@ -85,7 +85,7 @@ module tb;
         // data_entry(50);
         // data_entry(50);
         // data_entry(-50);
-        // #10; $display("ANSWERS:  %d  %d",$time, dout);
+        // data_entry(0);
         
 
         // Testcase 1: 

@@ -75,10 +75,9 @@ module coprocessor #(
     reg [WIDTH_COMPUTE-1:0] calc_final_position = 0;
 
     reg [2:0]               calc_position_state = 0; // 0 - idle, 1 - calculating
-    reg                     cal_prev_computing = 0;
+    reg [1:0]               cal_prev_computing = 0;
     reg [WIDTH_COMPUTE-1:0] calc_no_loops = 0;
     always @(posedge clk_slow) begin
-        
         if (rst) begin
             calc_position       <= 50;
             calc_position_was_zero <= 0;
@@ -88,20 +87,23 @@ module coprocessor #(
             calc_no_loops       <= 0;
         /// Computing /////////////////////////////////////////////////////////////////
         end else if (calc_position_state == 1) begin // restoring lmao
-            if (calc_position[31]) begin // negative ------------------------------------
+            if (calc_position[31]) begin // negative (implied din_dly[31]) ------------------------------------
                 cal_prev_computing  <= 1;
-                calc_position <= calc_position + 100;
-                calc_no_loops <= calc_no_loops + 1; // Extra 1 was added on
-                if (calc_position > -100 && calc_position_was_zero) begin
-                    calc_no_loops <= calc_no_loops;
+
+                if (calc_position <= -100) begin
+                    calc_position <= calc_position + 100;
+                    calc_no_loops <= calc_no_loops + 1; // calculate abs
+                end else begin
+                    calc_position <= calc_position + 100; // escape of the loop
+                    calc_no_loops <= calc_no_loops + (!calc_position_was_zero);
                 end
             end else if (calc_position >= 100) begin // positive -------------------
-                cal_prev_computing  <= 1;
+                cal_prev_computing  <= 2;
                 // just modulo
                 calc_position <= calc_position - 100;
                 calc_no_loops       <= calc_no_loops + 1;
             end else begin
-                calc_no_loops       <= calc_no_loops + (!cal_prev_computing & calc_position == 0);
+                calc_no_loops       <= calc_no_loops + (!cal_prev_computing[1] && calc_position == 0);
                 calc_position_state <= 2;
             end
         /// Start Computing ///////////////////////////////////////////////////////
