@@ -2,11 +2,9 @@ PROJ=coprocessor
 
 all: ${PROJ}.bit
 
-tmp.v: 
+%.json: src/*.v src/*/*.v
 	cat src/*.v src/*/*.v > tmp.v
-
-%.json: tmp.v 
-	yosys -p "synth_ecp5 -top top -json $@" $<
+	yosys -p "synth_ecp5 -top top -json $@" tmp.v
 
 %_out.config: %.json
 	nextpnr-ecp5 --json $< --textcfg $@ --25k --package CABGA256 --lpf pinout.lpf

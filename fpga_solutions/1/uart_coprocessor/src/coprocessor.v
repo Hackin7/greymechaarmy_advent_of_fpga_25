@@ -28,11 +28,7 @@ module coprocessor #(
 
     //// Computation /////////////////////////////////////
 
-    // Forwarding the Send signals out
-    reg send = 0;
-    always @(posedge clk) begin
-        send <= din_valid;
-    end
+   
 
 
     //// CDC Problem LOL - Downscaling clock by 100 times //////////////////////////////////
@@ -59,7 +55,11 @@ module coprocessor #(
         end
     end
 
-
+    // Forwarding the Send signals out
+    reg send = 0;
+    always @(posedge clk_slow) begin
+        send <= din_valid_ext;
+    end
     //// "Stage" 1: Data Input (to reduce crit path length) ///////////////////////////////
     reg [WIDTH_DIN-1:0] din_dly = 0;
     always @(posedge clk_slow) begin
@@ -79,18 +79,19 @@ module coprocessor #(
             calc_final_position <= 50;
             calc_count    <= 0;
         end else if (din_valid_ext) begin
-            calc_position <= (calc_final_position + din_dly); // % 100; // lmao hope % is synthesizable
-            calc_final_position <= calc_position; // % 100;
-            calc_count    <= calc_count + (calc_final_position == 0);
+            calc_position      <= (calc_position + din_dly); 
+            // calc_final_position <= calc_position; // % 100;
+            calc_count    <= calc_count + (calc_position == 0);
         end
     end
     
 
     wire [WIDTH_DIN-1:0] out = (
-        control[0] ? din :
-        control[1] ? calc_position :
-        control[2] ? calc_final_position :
-                     calc_count // This is the answer
+        control[2:0] == 3'b000 ? din :
+        control[2:0] == 3'b001 ? din_dly :
+        control[2:0] == 3'b010 ? calc_position :
+        control[2:0] == 3'b011 ? calc_final_position :
+                                calc_count // This is the answer
     );
 
     //// routing out /////////////////////////////////////
