@@ -62,7 +62,7 @@ module top(input clk_ext, input [4:0] btn, output [7:0] led, inout [7:0] interco
             .rx_empty    (rx_empty),
             .rx_out      (uart_rx_out),
             
-            .tx_trigger  (uart_tx_controller_send | ~btn[1]),
+            .tx_trigger  (uart_tx_controller_send), // | ~btn[1]),
             .tx_in       (uart_tx_out) 
         );
 
@@ -90,6 +90,9 @@ module top(input clk_ext, input [4:0] btn, output [7:0] led, inout [7:0] interco
     end
 
     // Coprocessor /////////////////////////////////////////////////
+    wire [7:0] viz_position;
+    wire [7:0] viz_count;
+
     coprocessor #(
         .WIDTH_DIN    (UART_FRAME_SIZE*DBITS-1),
         .WIDTH_DOUT   (UART_FRAME_SIZE*DBITS-1)
@@ -102,17 +105,24 @@ module top(input clk_ext, input [4:0] btn, output [7:0] led, inout [7:0] interco
         .dout        (uart_tx_out),
         .dout_valid  (uart_tx_controller_send), 
 
+        .viz_position(viz_position),
+        .viz_count   (viz_count),
         .control     (interconnect[7:2])
     );
 
     /// Control Logic ///////////////////////////////////////////////
     
     assign led = (
-        ~btn[4] ? uart_rx_out[8*(1)-1:8*(0)] :
-        ~btn[3] ? uart_rx_out[8*(2)-1:8*(1)] :
-        ~btn[2] ? interconnect : 
+        // ~btn[4] ? {uart_rx_out[8*(1)-1:8*(0)]}: // UART Parsing Data
+        // ~btn[3] ? uart_rx_out[8*(2)-1:8*(1)] :
+        // ~btn[2] ? interconnect : // Reset
+        // ~btn[1] ? rx_char_count : 
+
+        ~btn[4] ? uart_rx_out[8*(1)-1:8*(0)]: // UART Parsing Data
+        ~btn[3] ? interconnect: // UART Parsing Data
         ~btn[1] ? rx_char_count : 
-        {uart_rx_out[8*(1)-1:8*(0)]}
+        ~btn[0] ? viz_count:
+        viz_position
     );
 
 endmodule

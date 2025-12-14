@@ -13,6 +13,9 @@ module coprocessor #(
     output [WIDTH_DOUT-1:0] dout,
     output dout_valid, 
 
+    output [7:0] viz_count, 
+    output [7:0] viz_position, 
+
     inout [5:0] control
 );  
 
@@ -149,4 +152,7 @@ module coprocessor #(
     //// routing out /////////////////////////////////////
     assign dout = out;
     assign dout_valid = send;
+
+    assign viz_position = calc_position[7:0];
+    assign viz_count    = calc_count;
 endmodule

@@ -47,9 +47,9 @@ class FpgaCoprocessor():
         self.pins = pins
     
     def reset(self):
-        fp.pins[5].value = 1
+        self.pins[5].value = 1
         time.sleep(0.1)
-        fp.pins[5].value = 0
+        self.pins[5].value = 0
         time.sleep(0.1)
         
     def set_mode(self, a, b, c):
@@ -57,6 +57,8 @@ class FpgaCoprocessor():
         self.pins[1].value = b
         self.pins[2].value = c
     
+    def part_b_enable(self, x):
+        self.pins[3].value = x
     def write_int(self, val):
         n = val
         if val < 0:
@@ -136,6 +138,8 @@ def run_interactive():
     setup((input("type something to update fpga: ") != ""))
     # Just to clear out
     run("input_sample.txt", debug=False)
+    run()
+    fp.part_b_enable(1)
     run()
     
 if __name__ == "__main__":
