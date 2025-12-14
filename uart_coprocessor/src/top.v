@@ -32,7 +32,7 @@ module top(input clk_ext, input [4:0] btn, output [7:0] led, inout [7:0] interco
     
     /// UART ////////////////////////////////////////////////
     parameter DBITS = 8;
-    parameter UART_FRAME_SIZE = 1;
+    parameter UART_FRAME_SIZE = 8;
 
     wire reset = ~btn[2];
     wire rx;
@@ -68,16 +68,21 @@ module top(input clk_ext, input [4:0] btn, output [7:0] led, inout [7:0] interco
 
     reg [5:0] rx_char_count = 0;
     reg din_valid = 0;
+    reg din_valid_dly = 0;
+    reg [UART_FRAME_SIZE*DBITS-1:0] din_dly;
     always @ (posedge clk) begin
         if (reset) begin
             rx_char_count <= 0; 
             din_valid     <= 0;
+            din_dly       <= 0;
         end else if (rx_char_count >= UART_FRAME_SIZE) begin
             rx_char_count <= 0;
             din_valid     <= 1;
         end else if (uart_rx_received) begin
             rx_char_count <= rx_char_count + 1;
             din_valid     <= 0;
+        end else if (rx_char_count == 0) begin
+            din_dly       <= uart_rx_out;
         end
     end
 
@@ -103,6 +108,7 @@ module top(input clk_ext, input [4:0] btn, output [7:0] led, inout [7:0] interco
         ~btn[4] ? uart_rx_out[8*(1)-1:8*(0)] :
         ~btn[3] ? uart_rx_out[8*(2)-1:8*(1)] :
         ~btn[2] ? interconnect : 
+        ~btn[1] ? rx_char_count : 
         {uart_rx_out[8*(1)-1:8*(0)]}
     );
 
