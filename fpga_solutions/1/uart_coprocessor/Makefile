@@ -15,7 +15,7 @@ all: ${PROJ}.bit
 ${PROJ}.svf : ${PROJ}.bit
 
 sim: 
-	iverilog -gspecify -s tb -o test.vvp src/coprocessor.v test/tb.v
+	iverilog -gspecify -g2012 -s tb -o test.vvp src/coprocessor.v test/tb.v
 	vvp test.vvp
 
 gtkwave: 

@@ -43,6 +43,28 @@ module tb;
         $dumpvars;
     end
 
+    task data_entry(input signed [144-1:0] x);
+        @(posedge clk);
+        #1;
+        // din       = -144'd150;
+        din       = x;
+        din_valid = 1;
+        #`CYCLE_DELAY;
+
+        // Pipeline ////////////////////////////////////////////
+        @(posedge clk);
+        #1;
+        din       = 144'd0;
+        din_valid = 0;
+        @(posedge clk);
+        @(posedge clk);
+        @(posedge clk);
+         // give time to finish computing
+        //////////////////////////////////////////////////////
+
+        #10; $display("State: %d %d %d", $time, x, dout); 
+    endtask
+
     // Stimulus
     initial begin
         // Init
@@ -50,113 +72,37 @@ module tb;
         rst       = 1;
         din       = 0;
         din_valid = 0;
-        control   = 6'b000000;
+        control   = 6'b000100;
+        control[3] = 1'b1;
 
         // Release reset
         //#2100;
         #200;
         rst = 0;
 
-        // ---------------------------
-        // Test 1: control[0] = 1 -> dout = din
-        // ---------------------------
-        @(posedge clk);
-        #1;
-        din       = -144'd50;
-        din_valid = 1;
-        #`CYCLE_DELAY;
-
-        // Pipeline ////////////////////////////////////////////
-        @(posedge clk);
-        #1;
-        din       = 144'd101;
-        din_valid = 0;
-        @(posedge clk);
-        @(posedge clk);
-        @(posedge clk);
-         // give time to finish computing
-        //////////////////////////////////////////////////////
-
-
-        @(posedge clk);
-        #1;
-        din       = 144'd50;
-        din_valid = 1;
-        #`CYCLE_DELAY;
-
-        // Pipeline ////////////////////////////////////////////
-        @(posedge clk);
-        #1;
-        din       = 144'd101;
-        din_valid = 0;
-        @(posedge clk);
-        @(posedge clk);
-        @(posedge clk);
-         // give time to finish computing
-        //////////////////////////////////////////////////////
+        // // Testcase 1: 
+        // data_entry(-150);
+        // data_entry(50);
+        // data_entry(50);
+        // data_entry(-50);
+        // #10; $display("ANSWERS:  %d  %d",$time, dout);
         
 
-        @(posedge clk); // Return 1
-        #1;
-        din       = 144'd50;
-        din_valid = 1;
-        #`CYCLE_DELAY;
-
-        // Pipeline ////////////////////////////////////////////
-        @(posedge clk);
-        #1;
-        din       = 144'd101;
-        din_valid = 0;
-        @(posedge clk);
-        @(posedge clk);
-        @(posedge clk);
-         // give time to finish computing
-        //////////////////////////////////////////////////////
+        // Testcase 1: 
+        data_entry(-68);
+        data_entry(-30);
+        data_entry(48);
+        data_entry(-5);
+        data_entry(60);
+        data_entry(-55);
+        data_entry(-1);
+        data_entry(-99);
+        data_entry(14);
+        data_entry(-82);
+        data_entry(0);
         
-        @(posedge clk);
-        #1;
-        din       = -144'd50;
-        din_valid = 1;
-        #`CYCLE_DELAY;
-
-
-        // Pipeline ////////////////////////////////////////////
-        @(posedge clk);
-        #1;
-        din       = 144'd101;
-        din_valid = 0;
-        @(posedge clk);
-        @(posedge clk);
-        @(posedge clk);
-         // give time to finish computing
-        //////////////////////////////////////////////////////
         
-        // ---------------------------
-        // Test 3: default -> dout = prev_din + din
-        // ---------------------------
-        @(posedge clk);
-        #1;
-        din       = 144'h0005;
-        din_valid = 1;
-        #`CYCLE_DELAY;
-
-        // Pipeline ////////////////////////////////////////////
-        @(posedge clk);
-        #1;
-        din       = 144'd101;
-        din_valid = 0;
-        @(posedge clk);
-        @(posedge clk);
-        @(posedge clk);
-         // give time to finish computing
-        //////////////////////////////////////////////////////
         
-
-        @(posedge clk);
-        #1;
-        din_valid = 1;
-        #`CYCLE_DELAY;
-
         // Stop driving valid
         @(posedge clk);
         #1;
@@ -170,9 +116,9 @@ module tb;
 
     // Monitor
     initial begin
-        $display("Time | din_valid | control | din | dout_valid | dout");
-        $monitor("%4t |     %b     | %b | %h |     %b      | %h",
-                 $time, din_valid, control, din, dout_valid, dout);
+        // $display("Time | din_valid | control | din | dout_valid | dout");
+        // $monitor("%4t |     %b     | %b | %h |     %b      | %h",
+        //          $time, din_valid, control, din, dout_valid, dout);
     end
 
 endmodule
