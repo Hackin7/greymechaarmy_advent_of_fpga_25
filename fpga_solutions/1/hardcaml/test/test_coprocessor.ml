@@ -22,7 +22,7 @@ R14
 L82
  *)
 
-let sample_input_values = [ 68; 30; -48; 5; -60; 55; 1; 99; -14; 82 ]
+let sample_input_values = [ -68; -30; 48; -5; 60; -55; -1; -99; 14; -82; 0; 0 ]
 
 let simple_testbench (sim : Harness.Sim.t) =
   let inputs = Cyclesim.inputs sim in

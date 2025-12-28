@@ -68,9 +68,8 @@ let create scope ({ clk; rst; control; din; din_valid } : _ I.t) : _ O.t
   let spec = Reg_spec.create ~clock:clk ~clear:rst () in
   (* --- "Stage" 1: Data Input (to reduce crit path length) -------------------- *)
   let din_full_dly  = Signal.reg spec ~enable:Signal.vdd din in
-  let din_valid_dly = Signal.reg spec ~enable:Signal.vdd din_valid in
-
   let din_dly       = (uresize din_full_dly ~width:width_compute) in
+  (* let din_valid_dly = Signal.reg spec ~enable:Signal.vdd din_valid in *)
 
   (* --- "Stage" 2: Calc position ---------------------------------------------- *)
   let spec_pos = Reg_spec.create ~clock:clk () in
@@ -100,7 +99,7 @@ let create scope ({ clk; rst; control; din; din_valid } : _ I.t) : _ O.t
               when_ (rst) [
                 calc_position <--. 50;
               ];
-              when_ (din_valid_dly) [ 
+              when_ (din_valid) [ 
                   calc_position <-- (calc_position.value +: din_dly); 
                   calc_position_was_zero <-- (calc_position.value ==:. 0);
                   calc_prev_computing_ptive <--. 0;
@@ -128,7 +127,9 @@ let create scope ({ clk; rst; control; din; din_valid } : _ I.t) : _ O.t
               when_ (calc_position.value <:. 100) [when_ (calc_position.value >=:. 0) [
                 calc_num_loops_b <-- (
                   calc_num_loops_b.value +: 
-                  (uresize (calc_position.value ==:. 0) ~width:width_compute)
+                  (uresize (
+                    (~: (calc_prev_computing_ptive.value)) &: (calc_position.value ==:. 0)
+                  ) ~width:width_compute)
                 );
                 sm.set_next Done;
               ];];
@@ -158,7 +159,7 @@ let create scope ({ clk; rst; control; din; din_valid } : _ I.t) : _ O.t
     (Signal.mux2 enable_part_b calc_num_loops_b.value calc_num_loops_a.value)
   ] in
   (* let dout_valid = Signal.vdd in *)
-  let dout_valid = calc_prev_computing_ptive.value in
+  let dout_valid = din_valid in
 
   { dout = dout ; dout_valid = dout_valid }
 ;;
