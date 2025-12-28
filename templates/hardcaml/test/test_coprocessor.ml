@@ -6,7 +6,7 @@ module Coprocessor = Hardcaml_demo_project.Coprocessor
 module Harness = Cyclesim_harness.Make (Coprocessor.I) (Coprocessor.O)
 
 let ( <--. ) = Bits.( <--. )
-let sample_input_values = [ 16; 67; 150; 4 ]
+let sample_input_values = [ 255; 67; 150; 4 ]
 
 let simple_testbench (sim : Harness.Sim.t) =
   let inputs = Cyclesim.inputs sim in
@@ -24,8 +24,8 @@ let simple_testbench (sim : Harness.Sim.t) =
   (* Helper function for inputting one value *)
   let feed_input n =
     inputs.din <--. n;
-    inputs.din_valid := Bits.vdd;
-    cycle ();
+    (* inputs.din_valid := Bits.vdd;
+    cycle (); *)
     inputs.din_valid := Bits.gnd;
     cycle ()
   in
@@ -57,7 +57,8 @@ let simple_testbench (sim : Harness.Sim.t) =
 
 let waves_config =
   Waves_config.to_directory "/tmp/"
-  |> Waves_config.as_wavefile_format ~format:Hardcamlwaveform
+  (* |> Waves_config.as_wavefile_format ~format:Hardcamlwaveform *)
+  |> Waves_config.as_wavefile_format ~format:Vcd
 ;;
 
 (* let waves_config =  *)
