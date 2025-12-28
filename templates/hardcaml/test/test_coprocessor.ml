@@ -12,37 +12,33 @@ let simple_testbench (sim : Harness.Sim.t) =
   let inputs = Cyclesim.inputs sim in
   let outputs = Cyclesim.outputs sim in
   let cycle ?n () = Cyclesim.cycle ?n sim in
-  (* Helper function for inputting one value *)
-  let feed_input n =
-    inputs.data_in <--. n;
-    inputs.data_in_valid := Bits.vdd;
-    cycle ();
-    inputs.data_in_valid := Bits.gnd;
-    cycle ()
-  in
+  
   (* --- Reset the design ----------------------------------- *)
   inputs.clear := Bits.vdd;
   cycle ();
   inputs.clear := Bits.gnd;
   cycle ();
 
-  (* --- Pulse the start signal ----------------------------- *)
-  inputs.start := Bits.vdd;
-  cycle ();
-  inputs.start := Bits.gnd;
-  
   (* --- Input some data ------------------------------------ *)
+
+  (* Helper function for inputting one value *)
+  let feed_input n =
+    inputs.din <--. n;
+    inputs.din_valid := Bits.vdd;
+    cycle ();
+    inputs.din_valid := Bits.gnd;
+    cycle ()
+  in
+
   List.iter sample_input_values ~f:(fun x -> feed_input x);
-  inputs.finish := Bits.vdd;
-  cycle ();
-  inputs.finish := Bits.gnd;
+  inputs.din_valid := Bits.vdd;
   cycle ();
   
   (* --- Wait for result to become valid -------------------- *)
-  while not (Bits.to_bool !(outputs.range.valid)) do
+  while not (Bits.to_bool !(outputs.dout_valid)) do
     cycle ()
   done;
-  let range = Bits.to_unsigned_int !(outputs.range.value) in
+  let range = Bits.to_unsigned_int !(outputs.dout) in
   print_s [%message "Result" (range : int)];
 
   (* --- Show in the waveform that [valid] stays high. ------ *)
