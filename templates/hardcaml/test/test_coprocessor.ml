@@ -14,9 +14,9 @@ let simple_testbench (sim : Harness.Sim.t) =
   let cycle ?n () = Cyclesim.cycle ?n sim in
   
   (* --- Reset the design ----------------------------------- *)
-  inputs.clear := Bits.vdd;
+  inputs.rst := Bits.vdd;
   cycle ();
-  inputs.clear := Bits.gnd;
+  inputs.rst := Bits.gnd;
   cycle ();
 
   (* --- Input some data ------------------------------------ *)

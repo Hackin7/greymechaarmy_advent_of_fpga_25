@@ -19,8 +19,8 @@ let num_bits = 16*8
    interface. *)
 module I = struct
   type 'a t =
-    { clock     : 'a
-    ; clear     : 'a
+    { clk       : 'a
+    ; rst       : 'a
     ; din       : 'a [@bits num_bits]
     ; din_valid : 'a
     ; control   : 'a [@bits 5]
@@ -60,14 +60,15 @@ module States = struct
   [@@deriving sexp_of, compare ~localize, enumerate]
 end
 
-let create _scope ({ clock = _; clear = _; control = _; din; din_valid } : _ I.t) : _ O.t
+let create _scope ({ clk; rst; control = _; din; din_valid } : _ I.t) : _ O.t
   =
   (* --- Initialisation -------------------------------------------------------- *)
-  (* let _spec = Reg_spec.create ~clock ~clear () in *)
+  let _spec = Reg_spec.create ~clock:clk ~clear:rst () in
   (*let din_compute = Signal.select din 31 0  in (* 32 bit computation *)*)
-
+  let dout  = Signal.reg _spec ~enable:Signal.vdd din in
+  let dout_valid = Signal.reg _spec ~enable:Signal.vdd din_valid in
   (* --- Output -------------------------------------------------------- *)
-  { dout = din ; dout_valid = din_valid }
+  { dout = dout ; dout_valid = dout_valid }
 ;;
 
 (* The [hierarchical] wrapper is used to maintain module hierarchy in the generated

@@ -10,8 +10,8 @@ val num_bits : int
     be specified in the interface. *)
 module I : sig
   type 'a t =
-    { clock : 'a
-    ; clear : 'a
+    { clk : 'a
+    ; rst : 'a
     ; din : 'a
     ; din_valid : 'a
     ; control: 'a
