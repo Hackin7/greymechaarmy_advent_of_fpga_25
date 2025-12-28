@@ -13,7 +13,7 @@ open! Signal
 (* === Interface                                                                === *)
 (* ================================================================================ *)
 
-let num_bits = 16*8
+let num_bits = 16*8q
 
 (* Every hardcaml module should have an I and an O record, which define the module
    interface. *)
@@ -64,9 +64,11 @@ let create _scope ({ clk; rst; control = _; din; din_valid } : _ I.t) : _ O.t
   =
   (* --- Initialisation -------------------------------------------------------- *)
   let _spec = Reg_spec.create ~clock:clk ~clear:rst () in
-  (*let din_compute = Signal.select din 31 0  in (* 32 bit computation *)*)
   let dout  = Signal.reg _spec ~enable:Signal.vdd din in
   let dout_valid = Signal.reg _spec ~enable:Signal.vdd din_valid in
+
+  let _din_compute = Signal.select din ~high:31 ~low:0  in (* 32 bit computation *)
+  
   (* --- Output -------------------------------------------------------- *)
   { dout = dout ; dout_valid = dout_valid }
 ;;
