@@ -48,21 +48,23 @@ def app(hw_state):
     
     text_area = menu_layout(hw_state, "Advent of Code\n2025", "Part 1 - Setup")
     aoc1.setup()
-    text_area = menu_layout(hw_state, "Advent of Code\n2025", "Part 1a - Run")
     aoc1.run()
-    sol = aoc1.run()
+    while (1):
+        text_area = menu_layout(hw_state, "Advent of Code\n2025", "Part 1a - Run")
+        aoc1.fp.part_b_enable(0)
+        sol = aoc1.run()
+        
+        text_area = menu_layout(hw_state, "Advent of Code\n2025", "Part 1a Ans:\n" + str(sol))
+        time.sleep(5)
+        
+        text_area = menu_layout(hw_state, "Advent of Code\n2025", "Part 1b - Run")
+        aoc1.fp.part_b_enable(1)
+        sol = aoc1.run()
+        
+        text_area = menu_layout(hw_state, "Advent of Code\n2025", "Part 1b Ans:\n" + str(sol))
+        time.sleep(5)
+        #text_area = menu_layout(hw_state, "Advent of Code\n2025", "Reset Board")
     
-    text_area = menu_layout(hw_state, "Advent of Code\n2025", "Part 1a Ans:\n" + str(sol))
-    time.sleep(5)
-    
-    text_area = menu_layout(hw_state, "Advent of Code\n2025", "Part 1b - Run")
-    aoc1.fp.part_b_enable(1)
-    sol = aoc1.run()
-    
-    text_area = menu_layout(hw_state, "Advent of Code\n2025", "Part 1b Ans:\n" + str(sol))
-    time.sleep(5)
-    text_area = menu_layout(hw_state, "Advent of Code\n2025", "Reset Board")
-    while (1): pass
     
 if __name__ == "__main__":
     import gc 
