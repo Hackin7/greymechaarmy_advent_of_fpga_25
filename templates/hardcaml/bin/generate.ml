@@ -3,9 +3,9 @@ open! Hardcaml
 open! Hardcaml_demo_project
 
 let generate_range_finder_rtl () =
-  let module C = Circuit.With_interface (Range_finder.I) (Range_finder.O) in
+  let module C = Circuit.With_interface (Coprocessor.I) (Coprocessor.O) in
   let scope = Scope.create ~auto_label_hierarchical_ports:true () in
-  let circuit = C.create_exn ~name:"range_finder_top" (Range_finder.hierarchical scope) in
+  let circuit = C.create_exn ~name:"coprocessor_top" (Coprocessor.hierarchical scope) in
   let rtl_circuits =
     Rtl.create ~database:(Scope.circuit_database scope) Verilog [ circuit ]
   in
