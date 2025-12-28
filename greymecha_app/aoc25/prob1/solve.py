@@ -85,9 +85,11 @@ class FpgaCoprocessor():
 ##################################################################################
 fp = None
 
-def setup(bitstream_upload=True):
+def setup(bitstream_upload=True, hardcaml=False):
     if bitstream_upload:
-        h = hardware.fpga.upload_bitstream(PATH+"/coprocessor.bit")
+        bitstream_path = PATH+"/coprocessor_verilog.bit"
+        if hardcaml: bitstream_path = PATH+"/coprocessor_hardcaml.bit"
+        h = hardware.fpga.upload_bitstream(bitstream_path)
         h.deinit()
     
     global fp
@@ -135,7 +137,7 @@ def run(file="input.txt", interleave=False, debug=False):
     return ans
 
 def run_interactive():
-    setup((input("type something to update fpga: ") != ""))
+    setup((input("type something to update fpga: ") != ""), hardcaml=True)
     # Just to clear out
     run("input_sample.txt", debug=False)
     run()

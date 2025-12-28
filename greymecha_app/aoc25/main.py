@@ -41,27 +41,31 @@ def menu_layout(hw_state, header, text_in):
 import apps.aoc25.prob1.solve as aoc1
 def app(hw_state):
     #splashscreen()
-    text_area = menu_layout(hw_state, "Advent of Code\n2025", "Part 1 - \nDeinit")
+    button_b = hw_state["btn_action"][1]
+    is_hardcaml = (button_b.value == False)
+    header_text = "Advent of Code\n2025" if not is_hardcaml else "Advent of Code\n2025 - Hardcaml"
+
+    text_area = menu_layout(hw_state, header_text, "Part 1 - \nDeinit")
     hw_state["fpga_overlay"].deinit_mode_buttons()
     hw_state["fpga_overlay"].deinit()
     hw_state["fpga_overlay"].jtag_rst.deinit()
     
-    text_area = menu_layout(hw_state, "Advent of Code\n2025", "Part 1 - Setup")
-    aoc1.setup()
+    text_area = menu_layout(hw_state, header_text, "Part 1 - Setup")
+    aoc1.setup(hardcaml=is_hardcaml)
     aoc1.run()
     while (1):
-        text_area = menu_layout(hw_state, "Advent of Code\n2025", "Part 1a - Run")
+        text_area = menu_layout(hw_state, header_text, "Part 1a - Run")
         aoc1.fp.part_b_enable(0)
         sol = aoc1.run()
         
-        text_area = menu_layout(hw_state, "Advent of Code\n2025", "Part 1a Ans:\n" + str(sol))
+        text_area = menu_layout(hw_state, header_text, "Part 1a Ans:\n" + str(sol))
         time.sleep(5)
         
-        text_area = menu_layout(hw_state, "Advent of Code\n2025", "Part 1b - Run")
+        text_area = menu_layout(hw_state, header_text, "Part 1b - Run")
         aoc1.fp.part_b_enable(1)
         sol = aoc1.run()
         
-        text_area = menu_layout(hw_state, "Advent of Code\n2025", "Part 1b Ans:\n" + str(sol))
+        text_area = menu_layout(hw_state, header_text, "Part 1b Ans:\n" + str(sol))
         time.sleep(5)
         #text_area = menu_layout(hw_state, "Advent of Code\n2025", "Reset Board")
     
