@@ -121,8 +121,8 @@ module top(input clk_ext, input [4:0] btn, output [7:0] led, inout [7:0] interco
         ~btn[4] ? uart_rx_out[8*(1)-1:8*(0)]: // UART Parsing Data
         ~btn[3] ? interconnect: // UART Parsing Data
         ~btn[1] ? rx_char_count : 
-        ~btn[0] ? viz_count:
-        viz_position
+        ~btn[0] ? 8'b01010101 : //viz_count:
+        8'b10101010 // viz_position
     );
 
 endmodule
