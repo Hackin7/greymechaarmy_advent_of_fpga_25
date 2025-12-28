@@ -13,7 +13,7 @@ open! Signal
 (* === Interface                                                                === *)
 (* ================================================================================ *)
 
-let num_bits = 16*8q
+let num_bits = 16*8
 
 (* Every hardcaml module should have an I and an O record, which define the module
    interface. *)
