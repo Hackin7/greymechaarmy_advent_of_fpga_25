@@ -22,7 +22,7 @@ sim:
 	dune build bin/generate.exe @runtest
 
 waveform:
-	hardcaml-waveform-viewer show /tmp/*.hardcamlwaveform
+	hardcaml-waveform-viewer show /tmp/test_coprocessor_ml_Simple_test__optionally_saving_waveforms_to_disk.hardcamlwaveform
 
 
 .PHONY: default install uninstall reinstall clean
