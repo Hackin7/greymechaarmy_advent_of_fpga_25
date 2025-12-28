@@ -134,7 +134,11 @@ let create scope ({ clk; rst; control; din; din_valid } : _ I.t) : _ O.t
                 sm.set_next Done;
               ];];
           ]);( Done, [
-            calc_num_loops_a <-- calc_num_loops_a.value +:. 1;
+            calc_num_loops_a <-- (
+              calc_num_loops_a.value 
+              +: 
+              (uresize (calc_position.value ==:. 0) ~width:width_compute)
+            );
             sm.set_next Idle
           ])
         ]
