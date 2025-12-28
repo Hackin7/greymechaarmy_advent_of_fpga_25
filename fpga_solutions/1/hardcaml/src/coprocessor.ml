@@ -66,26 +66,19 @@ let create scope ({ clk; rst; control = _; din; din_valid } : _ I.t) : _ O.t
   =
   (* --- Initialisation -------------------------------------------------------- *)
   let spec = Reg_spec.create ~clock:clk ~clear:rst () in
-  let spec_position = Reg_spec.create ~clock:clk ~clear:rst() in
-
-
   (* --- "Stage" 1: Data Input (to reduce crit path length) -------------------- *)
-  let din_dly  = Signal.reg spec ~enable:Signal.vdd din in
+  let din_full_dly  = Signal.reg spec ~enable:Signal.vdd din in
   let din_valid_dly = Signal.reg spec ~enable:Signal.vdd din_valid in
-  
-  
+
+  let din_dly       = (uresize din_full_dly ~width:width_compute) in
 
   (* --- "Stage" 2: Calc position ---------------------------------------------- *)
-  let calc_position_next      = Signal.wire width_compute in
-  let calc_position           = Signal.reg spec_position ~enable:Signal.vdd calc_position_next in
-  let () =  Signal.assign calc_position_next Signal.(calc_position +: (uresize din_dly ~width:width_compute)) in
-
-  (* let calc_position_was_zero  = Signal.reg _spec ~enable:Signal.vdd din in
-  let calc_final_position     = Signal.reg _spec ~enable:Signal.vdd din in
-
-  let calc_position_state     = Signal.reg _spec ~enable:Signal.vdd din in
-  let calc_prev_computing     = Signal.reg _spec ~enable:Signal.vdd din in *)
-
+  let spec_position =
+    Reg_spec.create
+      ~clock:clk
+      ~clear:rst
+      (* ~clear_to:(Signal.const width_compute 50) *)
+      () in
 
   let open Always in
   let sm =
@@ -96,39 +89,47 @@ let create scope ({ clk; rst; control = _; din; din_valid } : _ I.t) : _ O.t
   (* let%hw[_var] is a shorthand that automatically applies a name to the signal, which
     will show up in waveforms. The [_var] version is used when working with the Always
     DSL. *)
-  let%hw_var ultimate_val = Variable.reg spec  ~width:width_compute in
+  let%hw_var calc_position               = Variable.reg spec_position  ~width:width_compute in
+  let%hw_var _calc_position_was_zero     = Variable.reg spec  ~width:1 in
+  let%hw_var _calc_prev_computing_ptive  = Variable.reg spec  ~width:1 in
+  
 
   compile
     [ sm.switch
-        [ ( Idle
-          , [ when_
-                din_valid_dly
-                [ 
-                    ultimate_val <-- zero width_compute
-                  ; sm.set_next Computing
-                ]
-            ] )
-        ; ( Computing
-          , [ 
-              (* ultimate_val <-- din_dly;  *)
-              sm.set_next Done 
-            ] )
-        ; ( Done
-          , [sm.set_next Computing] )
+        [ 
+          ( Idle,
+          [ 
+              when_ (din_valid_dly) [ 
+                  calc_position <-- (calc_position.value +: din_dly); 
+                  sm.set_next Computing
+              ]
+            ] 
+          );(Computing, [ 
+              when_ (calc_position.value >=:. 100) [
+                calc_position <-- calc_position.value -:. 100;
+              ];
+              when_ (calc_position.value <:. 100) [
+                sm.set_next Done 
+              ]
+          ]);( Done, [sm.set_next Idle] 
+          )
         ]
     ];
 
   (* let dout_valid = Signal.reg _spec ~enable:Signal.vdd din_valid in *)
-
-  let _din_compute = Signal.select din ~high:31 ~low:0  in (* 32 bit computation *)
-  
   
   (* --- "Stage" 3: Calc count -------------------------------------------------- *)
+  let calc_count_next      = Signal.wire width_compute in
+  let calc_count           = Signal.reg spec ~enable:Signal.vdd calc_count_next in
+  let () =  Signal.assign calc_count_next Signal.(
+    calc_count +: (uresize din_dly ~width:width_compute)
+  ) in
 
   (* --- Output -------------------------------------------------------- *)
+  (* [.value] is used to get the underlying Signal.t from a Variable.t in the Always DSL. *)
   let dout  = Signal.concat_msb [
     (uresize Signal.gnd ~width:(width_interface-width_compute)); 
-    ultimate_val.value
+    calc_position.value
   ] in
   let dout_valid = Signal.vdd in
 
